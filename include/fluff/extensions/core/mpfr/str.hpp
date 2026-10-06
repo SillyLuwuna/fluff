@@ -4,7 +4,7 @@
 #include <string>
 #include <cstdint>
 
-namespace fluff::mpfr_extensions
+namespace fluff::extensions::mpfr
 {
 	struct str
 	{

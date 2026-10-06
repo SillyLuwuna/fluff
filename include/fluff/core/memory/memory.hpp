@@ -82,5 +82,5 @@ namespace fluff
 		}
 
 		// TODO constexpr reinterpret cast
-	}
+	};
 }

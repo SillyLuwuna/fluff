@@ -153,28 +153,28 @@ namespace fluff
 		constexpr BitArray() :
 			bit_chunks_{}
 		{
-			// memory::fill<Container, chunk_size_>(bit_chunks_, 0);
+			// Mem::fill<Container, chunk_size_>(bit_chunks_, 0);
 		}
 
 		constexpr BitArray(const BitArray& other)
 		{
-			memory::copy<Container, chunk_size_>(this->bit_chunks_, other.bit_chunks_);
+			Mem::copy<Container, chunk_size_>(this->bit_chunks_, other.bit_chunks_);
 		}
 
 		constexpr BitArray& operator=(const BitArray& other)
 		{
-			memory::copy<Container, chunk_size_>(this->bit_chunks_, other.bit_chunks_);
+			Mem::copy<Container, chunk_size_>(this->bit_chunks_, other.bit_chunks_);
 			return *this;
 		}
 
 		constexpr BitArray(BitArray&& other)
 		{
-			memory::copy<Container, chunk_size_>(this->bit_chunks_, other.bit_chunks_);
+			Mem::copy<Container, chunk_size_>(this->bit_chunks_, other.bit_chunks_);
 		}
 
 		constexpr BitArray& operator=(BitArray&& other)
 		{
-			memory::copy<Container, chunk_size_>(this->bit_chunks_, other.bit_chunks_);
+			Mem::copy<Container, chunk_size_>(this->bit_chunks_, other.bit_chunks_);
 			return *this;
 		}
 

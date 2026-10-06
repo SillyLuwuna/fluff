@@ -1,7 +1,7 @@
 #pragma once
 
-#include "hashing/hasher.hpp"
-#include "memory/memory.hpp"
+#include "fluff/core/hashing/hasher.hpp"
+#include "fluff/core/memory/memory.hpp"
 #include <cmath>
 #include <cstdint>
 #include <cstring>

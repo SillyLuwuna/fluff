@@ -3,7 +3,7 @@
 #include <bitset>
 #include <cstdint>
 
-#include "containers/bit_array.hpp"
+#include "fluff/core/containers/bit_array.hpp"
 
 namespace fluff
 {

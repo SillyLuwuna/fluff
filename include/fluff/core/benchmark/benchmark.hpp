@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include "benchmark/byte_measurable.hpp"
+#include "fluff/core/benchmark/byte_measurable.hpp"
 
 namespace fluff::benchmark
 {

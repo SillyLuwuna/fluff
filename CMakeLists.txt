@@ -20,12 +20,23 @@ project(${PROJECT})
 file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS ${SRC_DIR}/*.cpp)
 file(GLOB_RECURSE INCLUDE_FILES CONFIGURE_DEPENDS ${INCLUDE_DIR}/*.hpp)
 
+set(PUBLIC_HEADERS
+    ${INCLUDE_DIR}/fluff/benchmark
+    ${INCLUDE_DIR}/fluff/containers
+    ${INCLUDE_DIR}/fluff/hashing
+    ${INCLUDE_DIR}/fluff/math
+    ${INCLUDE_DIR}/fluff/memory
+    ${INCLUDE_DIR}/fluff/random
+    ${INCLUDE_DIR}/fluff/extensions/mpfr
+)
+
+
 if(NOT USE_MPFR)
 	list(FILTER SRC_FILES EXCLUDE REGEX "extensions/mpfr/")
 	list(FILTER INCLUDE_FILES EXCLUDE REGEX "extensions/mpfr/")
 endif()
 
-add_library(${LIB} STATIC ${SRC_FILES} ${INCLUDE_FILES})
+add_library(${LIB} STATIC ${SRC_FILES} ${INCLUDE_FILES} ${PUBLIC_HEADERS})
 add_library(${LIB}::${LIB} ALIAS ${LIB})
 set_target_properties(${LIB} PROPERTIES LINKER_LANGUAGE CXX)
 

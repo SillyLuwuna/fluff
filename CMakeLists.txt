@@ -40,7 +40,7 @@ add_library(${LIB} STATIC ${SRC_FILES} ${INCLUDE_FILES} ${PUBLIC_HEADERS})
 add_library(${LIB}::${LIB} ALIAS ${LIB})
 set_target_properties(${LIB} PROPERTIES LINKER_LANGUAGE CXX)
 
-target_include_directories(${LIB} PUBLIC ${INCLUDE_DIR})
+target_include_directories(${LIB} SYSTEM PUBLIC ${INCLUDE_DIR})
 
 target_compile_definitions(${LIB} PUBLIC $<$<CONFIG:Debug>:DEBUG>)
 

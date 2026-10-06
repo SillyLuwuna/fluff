@@ -10,8 +10,8 @@ set(SRC_DIR "src")
 set(TEST_DIR "test")
 set(INCLUDE_DIR "include")
 
-option(BUILD_TESTS "Build tests" OFF)
-option(USE_MPFR "Enable MPFR/GMP support" OFF)
+option(FLUFF_BUILD_TESTS "Build tests" OFF)
+option(FLUFF_USE_MPFR "Enable MPFR/GMP support" OFF)
 
 set(TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/${TEST_DIR})
 

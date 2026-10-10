@@ -8,13 +8,15 @@
 namespace fluff
 {
 	template <typename T, typename Container, u64 StepSize, u64 Len>
-	class ContiguousBits
+	class ContiguousArray
 	{
 	private:
 		static constexpr bool aligned = (StepSize >> 3 != 0) && ((StepSize & 7) == 0) &&
 										(sizeof(Container) * 8 >> 3 != 0) && ((sizeof(Container) * 8 & 7) == 0);
 
 		BitArray<Container, StepSize * Len> bits_;
+
+		// TODO [] operator
 
 	public:
 		inline constexpr T at(u64 idx) const
@@ -68,7 +70,7 @@ namespace fluff
 			return at(idx);
 		}
 
-		inline constexpr bool cmp(const ContiguousBits<T, Container, StepSize, Len>& other, u64 start, u64 len)
+		inline constexpr bool cmp(const ContiguousArray<T, Container, StepSize, Len>& other, u64 start, u64 len)
 		{
 			return bits_.cmp(other.bits_, start * StepSize, len * StepSize);
 		}

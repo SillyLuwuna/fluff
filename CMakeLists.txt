@@ -99,17 +99,3 @@ file(CONFIGURE OUTPUT ${ODR_DIR}/tu_b.cpp CONTENT "${ODR_INCLUDES}" @ONLY)
 
 add_executable(odr_check ${ODR_DIR}/tu_a.cpp ${ODR_DIR}/tu_b.cpp)
 target_link_libraries(odr_check PRIVATE ${LIB})
-
-# set(ODR_SOURCES "")
-# foreach(hdr IN LISTS HEADER_FILES)
-# 	string(MAKE_C_IDENTIFIER "${hdr}" id)
-# 	foreach(copy a b)
-# 		set(src ${CMAKE_CURRENT_BINARY_DIR}/odr/${id}_${copy}.cpp)
-# 		file(CONFIGURE OUTPUT ${src} CONTENT "#include <${hdr}>\n" @ONLY)
-# 		list(APPEND ODR_SOURCES ${src})
-# 	endforeach()
-# endforeach()
-# 
-# file(CONFIGURE OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/odr/main.cpp CONTENT "int main() {}\n" @ONLY)
-# add_executable(odr_check ${ODR_SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/odr/main.cpp)
-# target_link_libraries(odr_check PRIVATE ${LIB})

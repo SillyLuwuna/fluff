@@ -1,147 +1,82 @@
 # Fluff
 
-A different approach to AI.
+General purpose open-source C++ library with a focus on performance.
 
 ## Overview
 
-Turing Learn is a research project made by a single person with the idea
-of using a different approach to AI.
+Fluff is a library made by a single person with the purpose to integrate
+common code across different projects. Furthermore, some of the code is
+meant to be as optimized as possible.
 
-The idea is to use an "omnipotent" model to find optimal relationships
-between input and outputs.
-
-The strategy is then to find the shortest turing machine that can best
-produce the expected output. Such a method has the potential of outperforming
-current AI models in various tasks.
-
-The idea started as a thought experiment which led it to where it stands.
-However, it was later discovered that by Solomonoff's theory of inductive
-inference, the idea is as "omnipotent" as naively thought. One can
-reason about information theory to discover how powerful this method can be.
+Some of the code may be useful for other people and thus this repo
+was created under that idea.
 
 ## Disclaimer
 
-This research project is still a proof of concept and is being refined 
-and further researched with time.
-
-The code may have bugs, as well as not being particularly clean.
+The code may have bugs, as well as not being particularly clean. The code
+may also not be fully tested.
 It is still in development and constant reiteration.
+
+## Noteworthy functionality
+
+- `BitArray` An extremely efficient fully customizeable bit set, providing:
+    - Logical operators (>>, &, |, ...)
+    - Numerical operators (++, +)
+    - Unaligned object insertion/retrieval
+    where most of the work went towards the last point, being possible to very efficiently
+    insert or retrieve objects at any **bit** (not byte) offset, of any length.
+- `ContiguousArray` A container that efficiently stores objects contiguously in memory,
+    potentially saving memory for a small performance cost.
 
 ## Motivation
 
-Modern AI, LLMs to be more exact, are inefficient at best and brute-force at worst.
-Supercomputers, huge amounts of data, power, space,
-water, money and time are necessary to train them, as well as for their inference
-(but to a lesser extent).
+The motivation was to unite common code under a library I can use for my own projects.
 
-Meanwhile, they completely fail, with their billions of parameters, to map a simple
-function reproducible with just a couple of states in a turing machine.
+Furthermore, a lot of the code in it either:
+- is too simple, to the point everyone just writes their own version.
+- was not found anywhere with the same capabilities.
+- was not found anywhere with the same efficiency.
+- was not found anywhere with clean code/interface.
 
-This work is not denying that other models aren't useful nor powerful. That, they are.
-But when comparing those huge, extremely complex models, to turing machines, or
-even brains and the power, water, space, etc... That they rely on, it clearly shows a
-pattern: inefficiency.
+those are all the possible reasons for why a certain piece of code in this library exists.
+Note that the code does not always fulfill the requirement it tried to, in other words,
+it may fail to be more efficient or cleaner. That's because this library is a work in progress.
 
-The current methodology mostly seems to be not to increase their efficiency, but to throw more
-and more compute, as well as all the other resources mentioned.
-
-This is the core thought experiment behind this project: if we allow such inefficiency,
-that such vast amount of resources are needed, why can't we just
-implement equally inefficient algorithms that can produce better results?
-
-This isn't to say there's an obvious way to make modern architectures much more efficient,
-nor that there isn't an effort.
-It's just meant as illustration to show the inefficiency. This project is thought to be
-even more inefficient in those terms. The core point is to embrace the inefficiency
-and reach further beyond the current models. That said, it is obviously meant to be
-as efficient as possible, with an extremely high focus on optimization.
-
-## Compiling
-
-Before running any script, the user is advised to read through them. They are very simple.
-The idea is to run `init.sh` followed by `compile.sh`. However these commands should suffice:
-
-```bash
-git submodule update --init --recursive
-cmake -B build
-cmake --build build --parallel
-```
-
-and run with
-
-```bash
-./build/turing_learn
-```
-
-as well as testing with
-
-```bash
-./build/turing_learn_test
-```
+Some other motivation is to clean up, or provide utility functions to other libraries, that may
+be unwelcome in the library itself. Because of this, Fluff offers toggleable extensions to
+other libraries.
 
 ## How to use
 
-This project is more meant as a library than anything else.
-The main.cpp file is the entry point, however, it is only meant for testing and holds
-no meaning.
+Just add it as a subdirectory in CMake and link the library as `fluff` or `fluff::fluff`.
 
 There currently is no guide or documentation on how to use the library, although anyone
 is free to learn by exploring.
 
+note the CMake flag `FLUFF_EXTENSION_<lib_name>` where `<lib_name>` is the name a library
+it extends. Note that this will also include said library in your project.
+
 ## Contributing
 
-This research project is being worked on without contributions in mind, and as such
+Fluff is being worked on without contributions in mind, and as such
 the repository isn't prepared for it.
 
-Although contributions are welcome, I would rather be contacted about them. If you
-have any idea as how to make the project more efficient, algorithmically or
-in code, or would like to discuss such matters, feel free to contact.
-
-## Goals
-
-The first main goal is to be able to find a turing machine capable of counting in binary.
-The code should run in on any computer, with very few examples,
-and in a very short amount of time.
-A task that is comically inconsistent with modern AIs, and impossible in regular
-computers (running inference on said AIs).
-
-If that is possible, it's believed that when run on something much more powerful, perhaps
-akin to a supercomputer or data center, it could have real, powerful, utility.
-
-It is hoped, and effort is being put such that a data center wouldn't have to be
-used for meaningful applications. Unfortunately this view might be mathematically unrealistic.
-
-## Done
-### Direct turing machine simulation
-- not tracked
-currently faster than the known fastest direct simulator. Benchmarks not published
-so take this with a grain of salt.
+If you have any idea as how to make the code more efficient, algorithmically or
+instruction-wise, or would like to discuss about Fluff, feel free to contact! <3
 
 ## Todo
-### Accelerated turing machine simulation
-- fixed-block size macro machines
-- tape compression
-- shift rules
-- inductive rule prover
-- nested exponential integer datatype
+- testing (doctest)
+- documentation (doxygen)
+- BitVector
+- ContiguousVector
 
 ## Future Ideas
-
-Many ideas for optimization are currently being researched and applied, some of which are:
-- general code optimizations and profiling
-- accelerated turing machine simulation
-- monte-carlo simulation instead of enumeration
-- reinforcement learning, with the monte-carlo simulation (?) 
-
-Some other more "brute-force", or less efficient optimizations can be further made:
-- CPU parallelization
-- GPU parallelization (an algorithm for such was already thought of)
+- logging (spdlog) (?)
 
 ## AI Policy
 
 Strict NO-AI policy for this project (ironically).
 
-## Thanks
+## Thanks :3
 
-Special thanks to the Busy Beaver Challenge, which has a ton of research on related topics,
-as well as it's community that was kind enough to directly answer some of my questions.
+Thank you for checking out my library! <3 <3 <3

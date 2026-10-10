@@ -12,6 +12,7 @@ namespace fluff
 {
 	using namespace fluff;
 
+	// TODO define overflow mechanics (?)
 	template <typename Container, u64 NumBits>
 	class BitArray
 	{

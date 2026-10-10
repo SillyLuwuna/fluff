@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 4.3)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -10,8 +10,9 @@ set(SRC_DIR "src")
 set(TEST_DIR "test")
 set(INCLUDE_DIR "include")
 
+option(FLUFF_EXTENSION_MPFR "Enable MPFR/GMP support" OFF)
+
 option(FLUFF_BUILD_TESTS "Build tests" OFF)
-option(FLUFF_USE_MPFR "Enable MPFR/GMP support" OFF)
 
 set(TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/${TEST_DIR})
 
@@ -24,6 +25,7 @@ file(GLOB_RECURSE HEADER_FILES CONFIGURE_DEPENDS ${INCLUDE_DIR}/*.hpp)
 if(NOT USE_MPFR)
 	list(FILTER SRC_FILES EXCLUDE REGEX "extensions/mpfr/")
 	list(FILTER HEADER_FILES EXCLUDE REGEX "extensions/mpfr/")
+	list(FILTER HEADER_FILES EXCLUDE REGEX "extensions/mpfr.hpp")
 endif()
 
 add_library(${LIB} STATIC ${SRC_FILES} ${HEADER_FILES})
@@ -39,7 +41,11 @@ target_compile_options(${LIB} PRIVATE
 	-Wall
 	-Wextra
 	-Wpedantic
+	-Wswitch
+
 	-O3
+
+	# -lto
 	# -march=native
 	# -ffast-math
 
@@ -70,9 +76,8 @@ if (BUILD_TESTS)
 	target_compile_definitions(${LIB}_test PRIVATE DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN)
 
 	add_subdirectory(third_party/doctest)
-	add_subdirectory(third_party/gmp-6.3.0)
 
-	target_link_libraries(${LIB}_test PUBLIC
+	target_link_libraries(${LIB}_test PRIVATE
 		doctest
 	)
 

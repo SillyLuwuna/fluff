@@ -1,3 +1,0 @@
-#pragma once
-
-#include "fluff/detail/hashing.hpp"

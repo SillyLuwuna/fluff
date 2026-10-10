@@ -72,10 +72,11 @@ instruction-wise, or would like to discuss about Fluff, feel free to contact! <3
 
 ## Future Ideas
 - logging (spdlog) (?)
+- package manager (Conan/vcpkg) (?)
 
 ## AI Policy
 
-Strict NO-AI policy for this project (ironically).
+Strict NO-AI policy for this project.
 
 ## Thanks :3
 

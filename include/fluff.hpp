@@ -3,6 +3,8 @@
 
 #include "fluff/benchmark.hpp"
 #include "fluff/containers.hpp"
+#include "fluff/events.hpp"
+#include "fluff/functional.hpp"
 #include "fluff/hashing.hpp"
 #include "fluff/math.hpp"
 #include "fluff/memory.hpp"

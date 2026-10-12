@@ -12,6 +12,8 @@ set(INCLUDE_DIR "include")
 
 option(FLUFF_EXTENSION_MPFR "Enable MPFR/GMP support" OFF)
 
+option(FLUFF_LIBEVENT "Enable libevent" OFF)
+
 option(FLUFF_BUILD_TESTS "Build tests" OFF)
 
 set(TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/${TEST_DIR})
@@ -22,10 +24,16 @@ file(GLOB_RECURSE SRC_FILES CONFIGURE_DEPENDS ${SRC_DIR}/*.cpp)
 file(GLOB_RECURSE HEADER_FILES CONFIGURE_DEPENDS ${INCLUDE_DIR}/*.hpp)
 
 
-if(NOT USE_MPFR)
+if(NOT FLUFF_EXTENSION_MPFR)
 	list(FILTER SRC_FILES EXCLUDE REGEX "extensions/mpfr/")
 	list(FILTER HEADER_FILES EXCLUDE REGEX "extensions/mpfr/")
 	list(FILTER HEADER_FILES EXCLUDE REGEX "extensions/mpfr.hpp")
+endif()
+
+if(NOT FLUFF_LIBEVENT)
+	list(FILTER SRC_FILES EXCLUDE REGEX "networking/")
+	list(FILTER HEADER_FILES EXCLUDE REGEX "networking/")
+	list(FILTER HEADER_FILES EXCLUDE REGEX "networking.hpp")
 endif()
 
 add_library(${LIB} STATIC ${SRC_FILES} ${HEADER_FILES})
@@ -55,7 +63,7 @@ target_compile_options(${LIB} PRIVATE
 )
 
 
-if (USE_MPFR)
+if (FLUFF_EXTENSION_MPFR)
 	enable_language(C)
 	add_subdirectory(third_party/gmp-6.3.0)
 	add_subdirectory(third_party/mpfr-4.2.2)
@@ -66,7 +74,17 @@ if (USE_MPFR)
 		MPFR::MPFR
 	)
 
-	target_compile_definitions(${LIB} PUBLIC USE_MPFR)
+	# target_compile_definitions(${LIB} PUBLIC FLUFF_EXTENSION_MPFR)
+endif()
+
+if (FLUFF_LIBEVENT)
+	add_subdirectory(third_party/libevent)
+	target_link_libraries(${LIB} PRIVATE
+		event
+		event_core
+		event_extra
+		event_pthreads
+	)
 endif()
 
 if (BUILD_TESTS)

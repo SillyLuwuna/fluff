@@ -5,9 +5,13 @@
 - functions
 - events
 - threadpool
+- networking
 
 ### Changed
 - classes on the global library namespace to specific namespaces
+
+### Fixed
+- CMakeLists with wrong MPFR variable
 
 ## 2026-10-10
 
@@ -23,7 +27,3 @@
 
 ### Added
 - library itself
-
-### Changed
-
-### Removed

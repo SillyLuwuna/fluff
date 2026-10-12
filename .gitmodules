@@ -1,3 +1,6 @@
 [submodule "third_party/doctest"]
 	path = third_party/doctest
 	url = https://github.com/doctest/doctest
+[submodule "third_party/libevent"]
+	path = third_party/libevent
+	url = https://github.com/libevent/libevent

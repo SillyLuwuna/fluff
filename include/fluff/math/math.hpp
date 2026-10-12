@@ -5,18 +5,15 @@
 
 namespace fluff::math
 {
-	struct Math
+	static inline constexpr u64 fast_pow(u64 base, u64 pow)
 	{
-		static inline constexpr u64 fast_pow(u64 base, u64 pow)
+		u64 result = 1;
+		while (pow-- != 0)
 		{
-			u64 result = 1;
-			while (pow-- != 0)
-			{
-				result *= base;
-			}
-			return result;
+			result *= base;
 		}
-	};
+		return result;
+	}
 }
 
 

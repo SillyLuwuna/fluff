@@ -4,16 +4,13 @@
 #include <cstddef>
 #include <functional>
 
-namespace fluff
+namespace fluff::hashing
 {
-	struct Hasher
+	template <class T>
+	static inline constexpr void hash_combine(std::size_t& seed, const T& v)
 	{
-		template <class T>
-		static inline constexpr void hash_combine(std::size_t& seed, const T& v)
-		{
-			seed ^= std::hash<T>{}(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
-		}
-	};
+		seed ^= std::hash<T>{}(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+	}
 }
 
 

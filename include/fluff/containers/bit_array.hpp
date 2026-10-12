@@ -158,23 +158,23 @@ namespace fluff
 
 		constexpr BitArray(const BitArray& other)
 		{
-			Mem::copy<Container, chunk_size_>(this->bit_chunks_, other.bit_chunks_);
+			fluff::memory::copy<Container, chunk_size_>(this->bit_chunks_, other.bit_chunks_);
 		}
 
 		constexpr BitArray& operator=(const BitArray& other)
 		{
-			Mem::copy<Container, chunk_size_>(this->bit_chunks_, other.bit_chunks_);
+			fluff::memory::copy<Container, chunk_size_>(this->bit_chunks_, other.bit_chunks_);
 			return *this;
 		}
 
 		constexpr BitArray(BitArray&& other)
 		{
-			Mem::copy<Container, chunk_size_>(this->bit_chunks_, other.bit_chunks_);
+			fluff::memory::copy<Container, chunk_size_>(this->bit_chunks_, other.bit_chunks_);
 		}
 
 		constexpr BitArray& operator=(BitArray&& other)
 		{
-			Mem::copy<Container, chunk_size_>(this->bit_chunks_, other.bit_chunks_);
+			fluff::memory::copy<Container, chunk_size_>(this->bit_chunks_, other.bit_chunks_);
 			return *this;
 		}
 
@@ -231,7 +231,7 @@ namespace fluff
 			u64 seed = 0;
 			for (u64 i = 0; i < chunk_size_; i++)
 			{
-				Hasher::hash_combine(&seed, bit_chunks_[i]);
+				fluff::hashing::hash_combine(&seed, bit_chunks_[i]);
 			}
 			return seed;
 		}

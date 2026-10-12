@@ -3,7 +3,7 @@
 
 #include "fluff/types.hpp"
 
-namespace fluff
+namespace fluff::memory
 {
 	template <u64 Num, bool Bit8 = (Num < 256), bool Bit16 = (Num < 65536), bool Bit32 = (Num < 4294967296)>
 	struct SizeSelector;

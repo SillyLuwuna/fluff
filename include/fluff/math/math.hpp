@@ -3,7 +3,7 @@
 
 #include "fluff/types.hpp"
 
-namespace fluff
+namespace fluff::math
 {
 	struct Math
 	{

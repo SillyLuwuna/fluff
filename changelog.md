@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-10-12
+### Added
+- functions
+- events
+- threadpool
+
+### Changed
+- classes on the global library namespace to specific namespaces
+
 ## 2026-10-10
 
 ### Added

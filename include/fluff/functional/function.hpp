@@ -57,8 +57,8 @@ namespace fluff
 			std::size_t hash() const
 			{
 				std::size_t seed = 0;
-				fluff::Hasher::hash_combine(seed, func_.target_type().name());
-				fluff::Hasher::hash_combine(seed, obj_);
+				fluff::hashing::hash_combine(seed, func_.target_type().name());
+				fluff::hashing::hash_combine(seed, obj_);
 				return seed;
 			}
 	};

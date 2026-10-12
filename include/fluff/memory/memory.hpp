@@ -8,6 +8,8 @@
 
 namespace fluff::memory
 {
+	using namespace fluff::types;
+
 	template <typename T, u64 Len>
 	static inline constexpr void copy(T* lhs, const T* rhs)
 	{

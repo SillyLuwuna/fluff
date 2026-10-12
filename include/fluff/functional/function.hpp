@@ -2,13 +2,15 @@
 #define FLUFF_FUNCTIONAL_FUNCTION_HPP
 
 #include "fluff/hashing/hasher.hpp"
+#include "fluff/types.hpp"
 
 #include <cstddef>
-#include <cstdint>
 #include <functional>
 
 namespace fluff
 {
+	using namespace fluff::types;
+
 	// TODO inline and/or constexpr
 	template<typename Signature>
 	class Function;
@@ -18,13 +20,13 @@ namespace fluff
 	{
 		private:
 			const std::function<T(Args...)> func_;
-			const std::uint64_t obj_;
+			const u64 obj_;
 
 		public:
 			template<typename O>
 			Function(T (O::*member_func)(Args...), O* obj) :
 				func_([obj, member_func](Args... args) -> T { return (obj->*member_func)(std::forward<Args>(args)...); }),
-				obj_((uint64_t)(void *)obj)
+				obj_((u64)(void *)obj)
 			{
 			}
 
@@ -39,7 +41,7 @@ namespace fluff
 				return func_(std::forward<Args>(args)...);
 			}
 
-			uint64_t get_obj() const
+			u64 get_obj() const
 			{
 				return obj_;
 			}

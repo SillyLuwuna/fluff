@@ -1,7 +1,6 @@
 #ifndef FLUFF_NETWORKING_TCP_SERVER_HPP
 #define FLUFF_NETWORKING_TCP_SERVER_HPP
 
-#include <cstdint>
 #include <mutex>
 #include <thread>
 #include <event2/event.h>
@@ -13,24 +12,27 @@
 #include "fluff/events/thread_safe_event.hpp"
 #include "fluff/networking/connection.hpp"
 #include "fluff/threading/threadpool.hpp"
+#include "fluff/types.hpp"
 
 namespace fluff::networking
 {
+	using namespace fluff::types;
+
 	class TcpServer
 	{
 	private:
-		uint16_t max_connections_;
-		uint16_t port_;
+		u16 max_connections_;
+		u16 port_;
 
 		ThreadSafeEvent<> start_event_;
 		ThreadSafeEvent<> stop_event_;
 		ThreadSafeEvent<const Connection&> connection_event_;
 		ThreadSafeEvent<const Connection&> disconnection_event_;
-		ThreadSafeEvent<const Connection&, const std::vector<uint8_t>&> data_received_event_;
+		ThreadSafeEvent<const Connection&, const std::vector<u8>&> data_received_event_;
 
 		event_base* base_;
 		evconnlistener* listener_;
-		std::unordered_map<int, Connection> connection_fds_;
+		std::unordered_map<i32, Connection> connection_fds_;
 		std::unordered_set<Connection> connections_;
 		mutable std::mutex connections_mutex_;
 
@@ -42,11 +44,11 @@ namespace fluff::networking
 
 		void run();
 
-		static void on_accept(evconnlistener* listener, evutil_socket_t fd, sockaddr* address, int socklen, void* ctx);
+		static void on_accept(evconnlistener* listener, evutil_socket_t fd, sockaddr* address, i32 socklen, void* ctx);
 		static void on_read(bufferevent* buffer, void* ctx);
 		static void on_event(bufferevent* buffer, short events, void* ctx);
 
-		void disconnect(int fd);
+		void disconnect(i32 fd);
 
 	public:
 		TcpServer(const TcpServer&) = delete;
@@ -54,7 +56,7 @@ namespace fluff::networking
 		TcpServer& operator=(const TcpServer&) = delete;
 		TcpServer& operator=(TcpServer&&) = delete;
 
-		TcpServer(uint16_t max_connections, uint16_t port);
+		TcpServer(u16 max_connections, u16 port);
 		~TcpServer();
 
 		bool start();
@@ -62,19 +64,19 @@ namespace fluff::networking
 
 		bool is_connected(const Connection& connection) const;
 		void disconnect(Connection& connection);
-		void send_data(const std::vector<uint8_t>& data, const Connection& connection);
-		void send_data(const uint8_t* data, size_t size, const Connection& connection);
+		void send_data(const std::vector<u8>& data, const Connection& connection);
+		void send_data(const u8* data, size_t size, const Connection& connection);
 
 		std::vector<const Connection*> connections() const;
 
-		uint16_t port();
-		uint16_t max_connections();
+		u16 port();
+		u16 max_connections();
 
 		Event<>& start_event();
 		Event<>& stop_event();
 		Event<const Connection&>& connection_event();
 		Event<const Connection&>& disconnection_event();
-		Event<const Connection&, const std::vector<uint8_t>&>& data_received_event();
+		Event<const Connection&, const std::vector<u8>&>& data_received_event();
 	};
 }
 

@@ -7,6 +7,8 @@
 
 namespace fluff
 {
+	using namespace fluff::types;
+
 	template <typename T, typename Container, u64 StepSize, u64 Len>
 	class ContiguousArray
 	{

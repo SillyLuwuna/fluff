@@ -6,6 +6,8 @@
 
 namespace fluff::benchmark
 {
+	using namespace fluff::types;
+
 	class Timer
 	{
 	private:

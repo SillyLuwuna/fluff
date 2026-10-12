@@ -7,6 +7,8 @@
 
 namespace fluff::random
 {
+	using namespace fluff::types;
+
 
 	// bad lower bits (+ version)
 	// better for 32bit floating point generation

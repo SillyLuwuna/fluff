@@ -7,6 +7,8 @@
 
 namespace fluff::extensions::mpfr
 {
+	using namespace fluff::types;
+
 	static inline std::string to_str(const mpfr_t x, i32 decimals)
 	{
 		char* buf = nullptr;

@@ -3,11 +3,11 @@
 
 using namespace fluff::threading;
 
-ThreadPool::ThreadPool(uint8_t threads) :
+ThreadPool::ThreadPool(u8 threads) :
 	stop_(false)
 {
 	workers_.reserve(threads);
-	for (int i = 0; i < threads; i++)
+	for (u8 i = 0; i < threads; i++)
 	{
 		workers_.emplace_back(&ThreadPool::worker_loop, this);
 	}

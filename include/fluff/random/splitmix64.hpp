@@ -7,6 +7,8 @@
 
 namespace fluff::random
 {
+	using namespace fluff::types;
+
 	class SplitMix64 : public RandomEngine
 	{
 	private:

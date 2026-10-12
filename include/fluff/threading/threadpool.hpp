@@ -2,8 +2,8 @@
 #define FLUFF_THREADING_THREADPOOL_HPP
 
 #include "fluff/functional/function.hpp"
+#include "fluff/types.hpp"
 #include <condition_variable>
-#include <cstdint>
 #include <functional>
 #include <future>
 #include <mutex>
@@ -12,6 +12,8 @@
 
 namespace fluff::threading
 {
+	using namespace fluff::types;
+
 	class ThreadPool
 	{
 	private:
@@ -32,7 +34,7 @@ namespace fluff::threading
 		ThreadPool& operator=(const ThreadPool&) = delete;
 		ThreadPool& operator=(ThreadPool&&) = delete;
 
-		ThreadPool(uint8_t threads);
+		ThreadPool(u8 threads);
 		~ThreadPool();
 
 		template<typename T>

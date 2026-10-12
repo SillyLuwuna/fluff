@@ -7,6 +7,8 @@
 
 namespace fluff::random
 {
+	using namespace fluff::types;
+
 	class Mt19937_64: public RandomEngine
 	{
 	private:

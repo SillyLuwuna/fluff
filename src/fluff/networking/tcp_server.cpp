@@ -2,7 +2,6 @@
 
 #include <event2/thread.h>
 #include <arpa/inet.h>
-#include <cstdint>
 #include <cstring>
 #include <iostream>
 #include <stdexcept>
@@ -10,7 +9,7 @@
 
 using namespace fluff::networking;
 
-TcpServer::TcpServer(uint16_t max_connections, uint16_t port) :
+TcpServer::TcpServer(u16 max_connections, u16 port) :
 	max_connections_(max_connections),
 	port_(port),
 	base_(nullptr),
@@ -56,7 +55,7 @@ bool TcpServer::start()
 	sin.sin_addr.s_addr = htonl(INADDR_ANY);
 	sin.sin_port = htons(port_);
 
-	uint32_t flags = LEV_OPT_REUSEABLE | LEV_OPT_CLOSE_ON_FREE;
+	u32 flags = LEV_OPT_REUSEABLE | LEV_OPT_CLOSE_ON_FREE;
 	listener_ = evconnlistener_new_bind(base_, on_accept, this, flags, -1, (sockaddr*)&sin, sizeof(sin));
 	if (!listener_)
 	{
@@ -111,7 +110,7 @@ void TcpServer::stop()
 
 void TcpServer::run()
 {
-	int success = event_base_dispatch(base_);
+	i32 success = event_base_dispatch(base_);
 	if (success < 0)
 	{
 		std::cerr << "error on stopping event loop\n";
@@ -122,7 +121,7 @@ void TcpServer::run()
 	}
 }
 
-void TcpServer::on_accept(evconnlistener* listener, evutil_socket_t fd, sockaddr* address, int , void* ctx)
+void TcpServer::on_accept(evconnlistener* listener, evutil_socket_t fd, sockaddr* address, i32, void* ctx)
 {
 	TcpServer* server = static_cast<TcpServer*>(ctx);
 	event_base* base = evconnlistener_get_base(listener);
@@ -145,8 +144,8 @@ void TcpServer::on_accept(evconnlistener* listener, evutil_socket_t fd, sockaddr
 		return;
 	}
 
-	int flag_set = 1;
-	int socketop_success = setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &flag_set, sizeof(flag_set));
+	i32 flag_set = 1;
+	i32 socketop_success = setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &flag_set, sizeof(flag_set));
 	if (!socketop_success)
 	{
 		std::cerr << "could not set socket options\n";
@@ -155,7 +154,7 @@ void TcpServer::on_accept(evconnlistener* listener, evutil_socket_t fd, sockaddr
 	char ip[INET_ADDRSTRLEN];
 	sockaddr_in* sin = (sockaddr_in*)address;
 	inet_ntop(AF_INET, &sin->sin_addr, ip, sizeof(ip));
-	uint16_t port = ntohs(sin->sin_port);
+	u16 port = ntohs(sin->sin_port);
 
 	Connection connection(ip, port, buffer);
 	server->connection_fds_.emplace(connection.fd, connection);
@@ -175,12 +174,12 @@ void TcpServer::on_read(bufferevent* buffer_event, void* ctx)
 {
 	TcpServer* server = static_cast<TcpServer*>(ctx);
 	evbuffer* input = bufferevent_get_input(buffer_event);
-	int fd = bufferevent_getfd(buffer_event);
+	i32 fd = bufferevent_getfd(buffer_event);
 
 	size_t len = evbuffer_get_length(input);
 	if (len == 0) return;
 
-	std::vector<uint8_t> data(len);
+	std::vector<u8> data(len);
 	evbuffer_remove(input, data.data(), len);
 
 	std::lock_guard connection_lock(server->connections_mutex_);
@@ -194,7 +193,7 @@ void TcpServer::on_read(bufferevent* buffer_event, void* ctx)
 void TcpServer::on_event(bufferevent* buffer_event, short events, void* ctx)
 {
 	TcpServer* server = static_cast<TcpServer*>(ctx);
-	int fd = bufferevent_getfd(buffer_event);
+	i32 fd = bufferevent_getfd(buffer_event);
 
 	if (events & BEV_EVENT_ERROR)
 	{
@@ -209,17 +208,17 @@ void TcpServer::on_event(bufferevent* buffer_event, short events, void* ctx)
 	}
 }
 
-void TcpServer::send_data(const std::vector<uint8_t>& data, const Connection& connection)
+void TcpServer::send_data(const std::vector<u8>& data, const Connection& connection)
 {
 	send_data(data.data(), data.size(), connection);
 }
 
-void TcpServer::send_data(const uint8_t* data, size_t size, const Connection& connection)
+void TcpServer::send_data(const u8* data, size_t size, const Connection& connection)
 {
 	if (!running_.load()) return;
 	if (!connection.buffer_event) return;
 
-	int success = bufferevent_write(connection.buffer_event, data, size);
+	i32 success = bufferevent_write(connection.buffer_event, data, size);
 	if (success < 0)
 	{
 		std::cerr << "could not send message\n";
@@ -234,7 +233,7 @@ bool TcpServer::is_connected(const Connection& connection) const
 	return connections_.contains(connection);
 }
 
-void TcpServer::disconnect(int fd)
+void TcpServer::disconnect(i32 fd)
 {
 	if (!running_.load()) return;
 
@@ -275,12 +274,12 @@ std::vector<const Connection*> TcpServer::connections() const
 	return result;
 }
 
-uint16_t TcpServer::port()
+u16 TcpServer::port()
 {
 	return port_;
 }
 
-uint16_t TcpServer::max_connections()
+u16 TcpServer::max_connections()
 {
 	return max_connections_;
 }
@@ -305,7 +304,7 @@ fluff::Event<const Connection&>& TcpServer::disconnection_event()
 	return disconnection_event_;
 }
 
-fluff::Event<const Connection&, const std::vector<uint8_t>&>& TcpServer::data_received_event()
+fluff::Event<const Connection&, const std::vector<u8>&>& TcpServer::data_received_event()
 {
 	return data_received_event_;
 }

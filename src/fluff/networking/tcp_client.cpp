@@ -4,7 +4,6 @@
 #include <event2/thread.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-#include <cstdint>
 #include <cstring>
 #include <iostream>
 #include <netinet/tcp.h> // linux only?
@@ -44,7 +43,7 @@ TcpClient::~TcpClient()
 }
 
 // returns if an error ocurred or not
-bool TcpClient::connect(const std::string& ip, uint16_t port)
+bool TcpClient::connect(const std::string& ip, u16 port)
 {
 	std::lock_guard lock(is_connecting_or_disconnecting_mutex_);
 
@@ -61,8 +60,8 @@ bool TcpClient::connect(const std::string& ip, uint16_t port)
 
 	evutil_make_socket_nonblocking(sock);
 
-	int flag_set = 1;
-	int socketop_success = setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, &flag_set, sizeof(flag_set));
+	i32 flag_set = 1;
+	i32 socketop_success = setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, &flag_set, sizeof(flag_set));
 	if (!socketop_success)
 	{
 		std::cerr << "could not set socket options\n";
@@ -93,7 +92,7 @@ bool TcpClient::connect(const std::string& ip, uint16_t port)
 	bufferevent_setcb(event_buffer_, on_read, nullptr, on_event, this);
 	bufferevent_enable(event_buffer_, EV_READ | EV_WRITE);
 
-	int success = bufferevent_socket_connect(event_buffer_, (sockaddr*)&sin, sizeof(sin));
+	i32 success = bufferevent_socket_connect(event_buffer_, (sockaddr*)&sin, sizeof(sin));
 	if (success < 0)
 	{
 		std::cerr << "failed to connect\n";
@@ -165,7 +164,7 @@ bool TcpClient::is_connected() const
 
 void TcpClient::run()
 {
-	int success = event_base_dispatch(base_);
+	i32 success = event_base_dispatch(base_);
 	if (success < 0)
 	{
 		std::cerr << "error on stopping event loop\n";
@@ -176,19 +175,19 @@ void TcpClient::run()
 	}
 }
 
-void TcpClient::send_data(const std::vector<uint8_t>& data)
+void TcpClient::send_data(const std::vector<u8>& data)
 {
 	send_data(data.data(), data.size());
 }
 
-void TcpClient::send_data(const uint8_t* data, size_t size)
+void TcpClient::send_data(const u8* data, size_t size)
 {
 	std::lock_guard lock(event_buffer_mutex_);
 
 	if (!connected_.load()) return;
 	if (!event_buffer_) return;
 
-	int success = bufferevent_write(event_buffer_, data, size);
+	i32 success = bufferevent_write(event_buffer_, data, size);
 	if (success < 0)
 	{
 		std::cerr << "could not send message\n";
@@ -203,7 +202,7 @@ void TcpClient::on_read(bufferevent* buffer, void* ctx)
 	size_t len = evbuffer_get_length(input);
 	if (len == 0) return;
 
-	std::vector<uint8_t> data(len);
+	std::vector<u8> data(len);
 	evbuffer_remove(input, data.data(), len);
 
 	client->event_invoker_.execute(Function<void()>(
@@ -257,7 +256,7 @@ fluff::Event<>& TcpClient::disconnection_event()
 	return disconnect_event_;
 }
 
-fluff::Event<const std::vector<uint8_t>&>& TcpClient::data_received_event()
+fluff::Event<const std::vector<u8>&>& TcpClient::data_received_event()
 {
 	return data_received_event_;
 }

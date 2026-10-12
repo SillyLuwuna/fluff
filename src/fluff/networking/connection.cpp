@@ -2,7 +2,7 @@
 
 using fluff::networking::Connection;
 
-Connection::Connection(const std::string& ip, uint16_t port, struct bufferevent* buffer_event) :
+Connection::Connection(const std::string& ip, u16 port, struct bufferevent* buffer_event) :
 	ip(ip),
 	port(port),
 	endpoint(get_endpoint(ip, port)),
@@ -21,7 +21,7 @@ bool Connection::operator==(const Connection& other) const
 	return this->endpoint == other.endpoint;
 }
 
-std::string Connection::get_endpoint(std::string ip, uint16_t port)
+std::string Connection::get_endpoint(std::string ip, u16 port)
 {
 	return ip + ":" + std::to_string(port);
 }

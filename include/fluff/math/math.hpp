@@ -5,6 +5,8 @@
 
 namespace fluff::math
 {
+	using namespace fluff::types;
+
 	static inline constexpr u64 fast_pow(u64 base, u64 pow)
 	{
 		u64 result = 1;

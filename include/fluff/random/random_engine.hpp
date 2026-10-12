@@ -5,6 +5,8 @@
 
 namespace fluff::random
 {
+	using namespace fluff::types;
+
 	class RandomEngine
 	{
 	private:

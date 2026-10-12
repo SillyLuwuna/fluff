@@ -5,6 +5,8 @@
 
 namespace fluff::benchmark
 {
+	using namespace fluff::types;
+
 	class ByteMeasurable
 	{
 	public:

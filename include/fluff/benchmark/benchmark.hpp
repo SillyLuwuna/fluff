@@ -5,8 +5,11 @@
 
 #include "fluff/benchmark/byte_measurable.hpp"
 
+
 namespace fluff::benchmark
 {
+	using namespace fluff::types;
+
 	class Benchmark
 	{
 	private:

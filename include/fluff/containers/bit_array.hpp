@@ -10,6 +10,8 @@
 
 namespace fluff
 {
+	using namespace fluff::types;
+
 	using namespace fluff;
 
 	// TODO define overflow mechanics (?)

@@ -10,11 +10,28 @@
 
 namespace fluff
 {
+	// TODO define overflow mechanics (?)
+	// TODO + and - overloads, as well as -=
+	// TODO numeric operations to BitArrays of different containers
+	// TODO cmp for BitArrays of different container types
 	using namespace fluff::types;
-
 	using namespace fluff;
 
-	// TODO define overflow mechanics (?)
+	/**
+	 * Array of bits, having bit operations, numerical operations, and
+	 * object insertion/extraction at arbitrary bit index.
+	 *
+	 * The class assumes correct use, not providing exceptions.
+	 *
+	 * Note: might not work for different indianness.
+	 *
+	 * @param Container the type of the buckets in which the bits will be stored.
+	 * Choose uint64_t for maximum performance. Choose uint8_t for maximum memory efficiency.
+	 * If Container matches the object being inserted/extracted, it is analogous to an array in
+	 * both performance and memory efficiency.
+	 *
+	 * @param NumBits the desired number of bits in the array.
+	 */
 	template <typename Container, u64 NumBits>
 	class BitArray
 	{
@@ -32,11 +49,19 @@ namespace fluff
 
 		Container bit_chunks_[chunk_size_];
 
+		/**
+		 * Get the chunk in which the bit resides.
+		 * @param idx the bit to check.
+		 */
 		static inline constexpr u64 chunk(u64 idx)
 		{
 			return idx >> container_division_;
 		}
 
+		/**
+		 * Get the index on the chunk in which the bit resides.
+		 * @param idx the bit to check.
+		 */
 		static inline constexpr u64 chunk_idx(u64 idx)
 		{
 			return idx & container_modulus_;
@@ -49,6 +74,15 @@ namespace fluff
 			Xor
 		};
 
+		/**
+		 * Execute an abstract operation between two containers.
+		 * Note that both containers may have different bit widths.
+		 * @param LhsContainer the lhs container type.
+		 * @param RhsContainer the rhs container type.
+		 * @param Op the operation to execute.
+		 * @param op_lhs the lhs container, where the result will also be written to.
+		 * @param op_rhs the rhs container
+		 */
 		template <typename LhsContainer, typename RhsContainer, Operator Op>
 		static inline constexpr void execute_op(LhsContainer* op_lhs, RhsContainer op_rhs)
 		{
@@ -58,6 +92,16 @@ namespace fluff
 			else throw std::runtime_error("Unknown bit array operation"); // PERF remove exceptions
 		}
 
+		/**
+		 * Applies an abstract operation between two BitArrays with the same container.
+		 * Given that this is more efficient that with two BitArrays with different containers.
+		 * @param GeneralContainer the common container type between the two BitArrays.
+		 * @param LhsNumBits the number of bits in the lhs BitArray.
+		 * @param RhsNumBits the number of bits in the rhs BitArray.
+		 * @param Op the operation to execute.
+		 * @param lhs the lhs BitArray.
+		 * @param rhs the rhs BitArray.
+		 */
 		template <typename GeneralContainer, u64 LhsNumBits, u64 RhsNumBits, Operator Op>
 		static inline constexpr void apply_operator(BitArray<GeneralContainer, LhsNumBits>& lhs, const BitArray<GeneralContainer, RhsNumBits>& rhs)
 		{
@@ -69,6 +113,17 @@ namespace fluff
 			}
 		}
 
+		/**
+		 * Applies an abstract operation between two BitArrays.
+		 * This is more inefficient than if both BitArrays have the same container.
+		 * @param LhsContainer the container type in the lhs BitArray.
+		 * @param LhsNumBits the number of bits in the lhs BitArray.
+		 * @param RhsContainer the container type in the rhs BitArray.
+		 * @param RhsNumBits the number of bits in the rhs BitArray.
+		 * @param Op the operation to execute.
+		 * @param lhs the lhs BitArray.
+		 * @param rhs the rhs BitArray.
+		 */
 		template <typename LhsContainer, u64 LhsNumBits, typename RhsContainer, u64 RhsNumBits, Operator Op>
 		static constexpr void apply_operator(BitArray<LhsContainer, LhsNumBits>& lhs, const BitArray<RhsContainer, RhsNumBits>& rhs)
 		{
@@ -116,6 +171,10 @@ namespace fluff
 
 
 	public:
+		/**
+		 * A bit reference that symbolizes a bit from a BitArray.
+		 * Used for operator overloads such as [].
+		 */
 		class BitRef
 		{
 		private:
@@ -128,23 +187,36 @@ namespace fluff
 				idx_(idx)
 			{ }
 
+			/**
+			 * Bool conversion of the bit value, so it can
+			 * be used as a bool.
+			 */
 			inline constexpr operator bool() const
 			{
 				return origin_.get(idx_);
 			}
 
+			/**
+			 * Assign the value of one bit to another.
+			 */
 			inline constexpr BitRef& operator=(const BitRef& other)
 			{
 				origin_.set(idx_, other);
 				return *this;
 			}
 
+			/**
+			 * Assign the value of one bit to a value.
+			 */
 			inline constexpr BitRef& operator=(bool other)
 			{
 				origin_.set(idx_, other);
 				return *this;
 			}
 
+			/**
+			 * Move the value of one bit to another.
+			 */
 			inline constexpr BitRef& operator=(BitRef&& other)
 			{
 				origin_.set(idx_, std::move(other));
@@ -180,6 +252,9 @@ namespace fluff
 			return *this;
 		}
 
+		/**
+		 * Increments the value in the whole BitArray by 1.
+		 */
 		inline constexpr void increment(u64 chunk_start)
 		{
 			for (u64 i = chunk_start; i < chunk_size_; i++)
@@ -188,22 +263,34 @@ namespace fluff
 			}
 		}
 
+		/**
+		 * Increments the value in the whole BitArray by 1.
+		 */
 		inline constexpr BitArray& operator++(i32)
 		{
 			increment(0);
 			return *this;
 		}
 
+		/**
+		 * Gets the bit at the given index.
+		 */
 		inline constexpr bool get(u64 idx) const
 		{
 			return bit_chunks_[chunk(idx)] & (1ull << chunk_idx(idx));
 		}
 
+		/**
+		 * Gets the bit at the given index.
+		 */
 		inline constexpr BitRef operator[](u64 idx)
 		{
 			return BitRef(*this, idx);
 		}
 
+		/**
+		 * Sets the bit at idx to val.
+		 */
 		inline constexpr void set(u64 idx, bool val)
 		{
 			if (val == true)
@@ -216,11 +303,17 @@ namespace fluff
 			}
 		}
 
+		/**
+		 * Flips the bit at the given index.
+		 */
 		inline constexpr void flip(u64 idx)
 		{
 			bit_chunks_[chunk(idx)] ^=  1ull << chunk_idx(idx);
 		}
 
+		/**
+		 * Checks for equality between two BitArrays.
+		 */
 		template <typename OtherContainer, u64 OtherNumBits>
 		inline constexpr bool operator==(const BitArray<OtherContainer, OtherNumBits>& other) const
 		{
@@ -228,6 +321,10 @@ namespace fluff
 			return std::memcmp(bit_chunks_, other.bit_chunks_, total_bytes_);
 		}
 
+		/**
+		 * Returns the hash of the BitArray.
+		 * Note: inefficient.
+		 */
 		inline constexpr u64 hash() const
 		{
 			u64 seed = 0;
@@ -238,11 +335,17 @@ namespace fluff
 			return seed;
 		}
 
+		/**
+		 * The number of bits in the BitArray.
+		 */
 		inline constexpr u64 size() const
 		{
 			return NumBits;
 		}
 
+		/**
+		 * A string representation of the BitArray.
+		 */
 		constexpr std::string to_str() const
 		{
 			std::string str;
@@ -257,6 +360,9 @@ namespace fluff
 			return str;
 		}
 
+		/**
+		 * Shifts all the bits to the left by shift.
+		 */
 		constexpr BitArray& operator<<=(u64 shift)
 		{
 			u64 left_chunk = chunk(shift);
@@ -283,6 +389,9 @@ namespace fluff
 			return *this;
 		}
 
+		/**
+		 * Shifts all the bits to the right by shift.
+		 */
 		constexpr BitArray& operator>>=(u64 shift)
 		{
 			u64 right_chunk = chunk(shift);
@@ -309,7 +418,10 @@ namespace fluff
 			return *this;
 		}
 
-		// only same container allowed for performance considerations
+		/**
+		 * Adds one BitArray to another.
+		 * Both BitArrays must have the same container, for performance considerations.
+		 */
 		template <u64 OtherNumBits>
 		constexpr BitArray& operator+=(const BitArray<Container, OtherNumBits>& other)
 		{
@@ -342,6 +454,9 @@ namespace fluff
 			return *this;
 		}
 
+		/**
+		 * Applies an xor between two BitArrays with the same container.
+		 */
 		template <u64 OtherNumBits>
 		constexpr BitArray& operator^=(const BitArray<Container, OtherNumBits>& other)
 		{
@@ -349,6 +464,9 @@ namespace fluff
 			return *this;
 		}
 
+		/**
+		 * Applies an or between two BitArrays with the same container.
+		 */
 		template <u64 OtherNumBits>
 		constexpr BitArray& operator|=(const BitArray<Container, OtherNumBits>& other)
 		{
@@ -356,6 +474,9 @@ namespace fluff
 			return *this;
 		}
 
+		/**
+		 * Applies an and between two BitArrays with the same container.
+		 */
 		template <u64 OtherNumBits>
 		constexpr BitArray& operator&=(const BitArray<Container, OtherNumBits>& other)
 		{
@@ -363,20 +484,9 @@ namespace fluff
 			return *this;
 		}
 
-		template <typename OtherContainer, u64 OtherNumBits>
-		constexpr BitArray& operator|=(const BitArray<OtherContainer, OtherNumBits>& other)
-		{
-			apply_operator<Container, NumBits, OtherContainer, OtherNumBits, Operator::Or>(*this, other);
-			return *this;
-		}
-
-		template <typename OtherContainer, u64 OtherNumBits>
-		constexpr BitArray& operator&=(const BitArray<OtherContainer, OtherNumBits>& other)
-		{
-			apply_operator<Container, NumBits, OtherContainer, OtherNumBits, Operator::And>(*this, other);
-			return *this;
-		}
-
+		/**
+		 * Applies an xor between two BitArrays with different containers.
+		 */
 		template <typename OtherContainer, u64 OtherNumBits>
 		constexpr BitArray& operator^=(const BitArray<OtherContainer, OtherNumBits>& other)
 		{
@@ -384,6 +494,29 @@ namespace fluff
 			return *this;
 		}
 
+		/**
+		 * Applies an or between two BitArrays with different containers.
+		 */
+		template <typename OtherContainer, u64 OtherNumBits>
+		constexpr BitArray& operator|=(const BitArray<OtherContainer, OtherNumBits>& other)
+		{
+			apply_operator<Container, NumBits, OtherContainer, OtherNumBits, Operator::Or>(*this, other);
+			return *this;
+		}
+
+		/**
+		 * Applies an and between two BitArrays with different containers.
+		 */
+		template <typename OtherContainer, u64 OtherNumBits>
+		constexpr BitArray& operator&=(const BitArray<OtherContainer, OtherNumBits>& other)
+		{
+			apply_operator<Container, NumBits, OtherContainer, OtherNumBits, Operator::And>(*this, other);
+			return *this;
+		}
+
+		/**
+		 * Applies the not operator to the whole BitArray.
+		 */
 		constexpr BitArray& operator~()
 		{
 			for(u64 i = 0; i < chunk_size_; i++)
@@ -394,17 +527,33 @@ namespace fluff
 			return *this;
 		}
 
-		// assumes byte alignment of start and end
+		/**
+		 * Inserts obj at **CHUNK** obj_start_idx in the BitArray, assuming alignment
+		 * for performance.
+		 *
+		 * Use only when you can assure the object's bits is a multiple of the
+		 * container's bits.
+		 *
+		 * I.e. container is uint16_t and obj is uint32_t,
+		 * while LenBits must be 32 for this case.
+		 *
+		 * If container type is the same as the object type, obj_start_idx can
+		 * be used as an index into the objects.
+		 *
+		 * Note: to_bits infers this automatically
+		 *
+		 * @param T the type of the object to insert.
+		 * @param LenBits the number of bits the obj has.
+		 */
 		template <typename T, u64 LenBits>
-		inline constexpr void to_bits_fast_aligned(u64 obj_start_idx, const T& obj)
+		inline constexpr void to_bits_aligned(u64 obj_start_idx, const T& obj)
 		{
+			// TODO make version without LenBits, inferring it from sizeof(T)
 			constexpr u64 len_bytes = LenBits >> 3; // len_bits / 8
 			constexpr bool is_container_sized = sizeof(Container) == sizeof(T);
 
 			if constexpr (is_container_sized)
 			{
-				// std::memcpy(bit_chunks_ + obj_start_idx, &obj, len_bytes);
-
 				bit_chunks_[obj_start_idx] = *const_cast<Container*>(&obj);
 				return;
 			}
@@ -412,13 +561,23 @@ namespace fluff
 			u64 start_byte = (obj_start_idx * LenBits) >> 3;
 			u8* start = (u8*)bit_chunks_ + start_byte;
 			std::memcpy(start, &obj, len_bytes);
-			// std::memcpy(start, (u8*)&obj, len_bytes);
 		}
 
-		// clearing is inefficient
+		/**
+		 * Inserts obj at bit start_idx in the BitArray, with no alignment constraints.
+		 *
+		 * Note: clearing is inefficient.
+		 *
+		 * @param T the type of the object to insert.
+		 * @param Clear if the bits where the object will be inserted should be cleared first.
+		 * @param LenBits the number of bits the obj has.
+		 * Note that this number doesn't have to be aligned/a multiple of 8 nor the same size as T.
+		 */
 		template <typename T, bool Clear, u64 LenBits>
-		constexpr void to_bits_fast(u64 start_idx, const T& obj)
+		constexpr void to_bits(u64 start_idx, const T& obj)
 		{
+			// TODO make version without LenBits, inferring it from sizeof(T)
+			// TODO cleanup
 			static_assert(std::is_trivially_copyable_v<T>, "type must be trivially copyable for set_bits()");
 			constexpr u64 len_bytes = LenBits >> 3; // len_bits / 8
 			constexpr u8 overflow_bits = LenBits & 7; // len_bits % 8
@@ -499,11 +658,8 @@ namespace fluff
 				}
 				else
 				{
-					// u8 offset = 8 - missaligned_bits_start;
 					for (u64 i = 0; i < len_bytes; i++)
 					{
-						// start[i] |= obj_start[i] << missaligned_bits_start;
-						// start[i + 1] |= obj_start[i] >> offset;
 						u16* curr = (u16*)(start + i);
 						*curr |= ((u16)obj_start[i] << missaligned_bits_start);
 					}
@@ -511,9 +667,6 @@ namespace fluff
 					if (extra_byte > 0)
 					{
 						u64 last_idx = len_bytes;
-						// u8 last_val = obj_start[last_idx] & overflow_mask;
-						// start[last_idx] |= last_val << missaligned_bits_start;
-						// start[last_idx + 1] |= last_val >> offset;
 						u16 last_val = obj_start[last_idx] & overflow_mask;
 						u16* curr = (u16*)(start + last_idx);
 						*curr |= last_val << missaligned_bits_start;
@@ -522,41 +675,34 @@ namespace fluff
 			}
 		}
 
-		template <typename T, bool Clear>
-		constexpr void to_bits(u64 start, const T& obj)
-		{
-			static_assert(std::is_trivially_copyable_v<T>, "type must be trivially copyable for set_bits()");
-
-			if constexpr (Clear)
-			{
-				BitArray<u64, NumBits> mask;
-				std::memset(mask.bit_chunks_, 0xff, sizeof(T));
-				mask <<= start;
-				*this &= ~mask;
-			}
-
-			BitArray<u64, NumBits> obj_bits;
-			std::memcpy(obj_bits.bit_chunks_, &obj, sizeof(T));
-			obj_bits <<= start;
-			*this |= obj_bits;
-		}
-
-		// assumes byte alignment of start and end
-		// obj_start_idx is the index of the object, assuming all of the objects have LenBits
+		/**
+		 * Retrieves an object at **CHUNK** obj_start_idx in the BitArray, assuming alignment
+		 * for performance.
+		 *
+		 * Use only when you can assure the object's bits is a multiple of the
+		 * container's bits.
+		 *
+		 * I.e. container is uint16_t and obj is uint32_t,
+		 * while LenBits must be 32 for this case.
+		 *
+		 * If container type is the same as the object type, obj_start_idx can
+		 * be used as an index into the objects.
+		 *
+		 * Note: from_bits infers this automatically
+		 *
+		 * @param T the type of the object to retrieve.
+		 * @param LenBits the number of bits the obj has.
+		 */
 		template<typename T, u64 LenBits>
-		inline constexpr T from_bits_fast_aligned(u64 obj_start_idx) const
+		inline constexpr T from_bits_aligned(u64 obj_start_idx) const
 		{
+			// TODO make version without LenBits, inferring it from sizeof(T)
 			constexpr u64 len_bytes = LenBits >> 3; // len_bits / 8
 			constexpr u64 true_obj_bytes = sizeof(T);
 			constexpr bool is_container_sized = sizeof(Container) == sizeof(T);
 
 			if constexpr (is_container_sized)
 			{
-				// u8 obj[true_obj_bytes];
-				// std::memcpy(obj, bit_chunks_ + obj_start_idx, true_obj_bytes);
-				// return *reinterpret_cast<T*>(obj);
-
-				// return *const_cast<Container*>(bit_chunks_ + obj_start_idx);
 				return (T)*const_cast<Container*>(bit_chunks_ + obj_start_idx);
 			}
 
@@ -573,9 +719,18 @@ namespace fluff
 			return *reinterpret_cast<T*>(obj);
 		}
 
+		/**
+		 * Retrieves an object at bit start_idx in the BitArray, with no alignment constraints.
+		 *
+		 * @param T the type of the object to retrieve.
+		 * @param LenBits the number of bits the obj has.
+		 * Note that this number doesn't have to be aligned/a multiple of 8 nor the same size as T.
+		 */
 		template <typename T, u64 LenBits>
-		constexpr T from_bits_fast(u64 start_idx) const
+		constexpr T from_bits(u64 start_idx) const
 		{
+			// TODO make version without LenBits, inferring it from sizeof(T)
+			// TODO cleanup
 			// PERF for efficiency, instead of using u8, use maximum chunk size (tricky)
 			// PERF for efficiency, do bit operations on the start/end directly instead of using masks (?)
 			static_assert(std::is_trivially_copyable_v<T>, "type must be trivially copyable for set_bits()");
@@ -651,44 +806,14 @@ namespace fluff
 			return *reinterpret_cast<T*>(obj);
 		}
 
-		template <typename T>
-		T from_bits(u64 start, u64 len_bits) const
-		{
-			static_assert(std::is_trivially_copyable_v<T>, "type must be trivially copyable for set_bits()");
-			u64 len_bytes = len_bits >> 3; // len_bits / 8
-			u64 overflow_bits = len_bits & 7; // len_bits % 8
-			u8 overflow_mask = 0xff >> (8 - overflow_bits);
-
-			BitArray<u64, NumBits> mask;
-			std::memset(mask.bit_chunks_, 0xff, len_bytes);
-
-			u8* mask_overflow_target = (u8*)mask.bit_chunks_ + len_bytes;
-			*mask_overflow_target |= overflow_mask;
-
-			BitArray<Container, NumBits> obj_bits = *this;
-			obj_bits >>= start;
-			obj_bits &= mask;
-
-			return *reinterpret_cast<T*>(obj_bits.bit_chunks_);
-		}
-
-		template <typename T>
-		T from_bits(u64 start) const
-		{
-			static_assert(std::is_trivially_copyable_v<T>, "type must be trivially copyable for set_bits()");
-
-			BitArray<u64, NumBits> mask;
-			std::memset(mask.bit_chunks_, 0xff, sizeof(T));
-
-			BitArray<Container, NumBits> obj_bits = *this;
-			obj_bits >>= start;
-			obj_bits &= mask;
-
-			return *reinterpret_cast<T*>(obj_bits.bit_chunks_);
-		}
-
+		/**
+		 * compares len bits from the two BitArrays with the same container type, starting at bit start.
+		 * @return true if the two sequences match.
+		 */
 		constexpr bool cmp(const BitArray<Container, NumBits>& other, u64 start, u64 len) const
 		{
+			// TODO optimize for SIMD?
+
 			u64 start_byte = start >> 3;
 			u64 start_bit = start & 7;
 			u8* this_start = (u8*)bit_chunks_ + start_byte;
@@ -739,67 +864,7 @@ namespace fluff
 
 			return true;
 		}
-
-		// TODO
-		// template<typename OtherContainer, u64 OtherNumBits>
-		// constexpr bool cmp(const BitArray<OtherContainer, OtherNumBits>& other, u64 start_bit, u64 other_start_bit, u64 len) const
-		// {
-			// u64 this_start_byte = start_bit >> 3;
-			// u64 this_start_bit_offset = start_bit & 7;
-			// u8* this_start = (u8*)bit_chunks_ + this_start_byte;
-			//
-			// u64 other_start_byte = other_start_bit >> 3;
-			// u64 other_start_bit_offset = other_start_bit & 7;
-			// u8* other_start = (u8*)other.bit_chunks_ + other_start_byte;
-			//
-			// u64 this_end_byte = (start_bit + len) >> 3;
-			// u64 this_end_bit_offset = (start_bit + len) & 7;
-			// u8* this_end = (u8*)bit_chunks_ + this_end_byte;
-			//
-			// if (this_start == this_end)
-			// {
-			// 	u8 left_shift = this_end_bit_offset == 0 ? 0 : (8 - this_end_bit_offset);
-			// 	u8 right_shift = left_shift + this_start_bit_offset;
-			// 	u8 this_byte = (*this_start << left_shift) >> right_shift;
-			// 	u8 other_byte = (*other_start << left_shift) >> right_shift;
-			// 	return this_byte == other_byte;
-			// }
-			//
-			// bool misaligned_start = this_start_bit_offset != 0 || other_start_bit_offset != 0;
-			// if (misaligned_start)
-			// {
-			// 	u8 this_byte = *this_start >> this_start_bit_offset;
-			// 	u8 other_byte = *other_start >> this_start_bit_offset;
-			// 	if (this_byte != other_byte)
-			// 	{
-			// 		return false;
-			// 	}
-			// }
-			//
-			// if (std::memcmp(this_start, other_start, this_end_byte - this_start_byte))
-			// {
-			// 	return false;
-			// }
-			//
-			// u8* other_end = (u8*)other.bit_chunks_ + this_end_byte;
-			//
-			// bool misaligned_end = this_end_bit_offset != 0;
-			// if (misaligned_end)
-			// {
-			// 	u8 left_shift = 8 - this_end_bit_offset;
-			// 	u8 this_byte = *this_end << left_shift;
-			// 	u8 other_byte = *other_end << left_shift;
-			// 	if (this_byte != other_byte)
-			// 	{
-			// 		return false;
-			// 	}
-			// }
-			//
-			// return true;
-		// }
 	};
-
 }
-
 
 #endif

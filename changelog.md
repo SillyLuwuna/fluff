@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-10-15
+### Added
+- documentation for benchmark module
+- documentation for containers module
+
+### Changed
+- timer.hpp, was nonsensical.
+- BitArray:to_bits_fast to to_bits.
+- BitArray:from_bits_fast to from_bits.
+- BitArray:to_bits_fast_aligned to to_bits_aligned.
+- BitArray:from_bits_fast_aligned to from_bits_aligned.
+
+### Removed
+- BitArray::to_bits old implementation
+- BitArray::from_bits old implementation
+
 ## 2026-10-12
 ### Added
 - functions
